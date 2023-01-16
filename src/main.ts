@@ -74,7 +74,7 @@ export async function task(
     ...(options.notificationARNs !== undefined && {
       NotificationARNs: options.notificationARNs
     }),
-    DisableRollback: options.disableRollback,
+    DisableRollback: true,
     ...(options.timeoutInMinutes !== undefined && {
       TimeoutInMinutes: options.timeoutInMinutes
     }),
