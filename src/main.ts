@@ -151,7 +151,7 @@ async function buildCdk() {
 
 export async function run(): Promise<void> {
   try {
-    buildCdk()
+    await buildCdk()
 
     const AWS_ACCESS_KEY_ID = core.getInput('aws_access_key_id')
     const AWS_SECRET_ACCESS_KEY = core.getInput('aws_secret_access_key')
