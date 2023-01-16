@@ -7,7 +7,7 @@ Deploys AWS cdk stacks in parallel
 To deploy a single stack:
 
 ```yaml
-- uses: widdix/aws-cloudformation-github-deploy@v2
+- uses: johnny-human/cdk-github-deploy@v1
   with:
     name: StackA
     template: a.yaml
@@ -17,7 +17,7 @@ To deploy a single stack:
 To dedploy multiple stacks in parallel:
 
 ```yaml
-- uses: widdix/aws-cloudformation-github-deploy@v2
+- uses: johnny-human/cdk-github-deploy@v1
   with:
     name: |
       StackA
@@ -33,7 +33,7 @@ To dedploy multiple stacks in parallel:
 To dedploy multiple stacks in parallel using the same settings for all stacks:
 
 ```yaml
-- uses: widdix/aws-cloudformation-github-deploy@v2
+- uses: johnny-human/cdk-github-deploy@v1
   with:
     name: |
       StackA
@@ -49,7 +49,7 @@ To dedploy multiple stacks in parallel using the same settings for all stacks:
 To dedploy multiple stacks in parallel passing in no values for a specific stack using a empty line:
 
 ```yaml
-- uses: widdix/aws-cloudformation-github-deploy@v2
+- uses: johnny-human/cdk-github-deploy@v1
   with:
     name: |
       StackA
@@ -87,12 +87,12 @@ jobs:
           # ...
           aws-region: us-east-1
       - id: core
-        uses: widdix/aws-cloudformation-github-deploy@v2
+        uses: johnny-human/cdk-github-deploy@v1
         with:
           name: StackA
           template: a.yaml
           parameter-overrides: Param1=a1,MyParam2=a2
-      - uses: widdix/aws-cloudformation-github-deploy@v2
+      - uses: johnny-human/cdk-github-deploy@v1
         with:
           name: |
             StackB
