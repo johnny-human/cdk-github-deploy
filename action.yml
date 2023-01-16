@@ -1,0 +1,63 @@
+name: "Deploy CloudFormation Stack(s), a cloudonaut.io action"
+description: "Deploys AWS CloudFormation stacks"
+branding:
+  icon: "cloud"
+  color: "blue"
+inputs:
+  name:
+    description: "The name of the CloudFormation stack"
+    required: true
+  template:
+    description: "The path or URL to the CloudFormation template"
+    required: true
+  capabilities:
+    description: "The comma-delimited list of stack template capabilities to acknowledge. Defaults to CAPABILITY_IAM"
+    required: false
+    default: "CAPABILITY_IAM"
+  parameter-overrides:
+    description: 'The parameters to override in the stack inputs. You can pass a comma-delimited list or a file URL. Comma-delimited list has each entry formatted as <ParameterName>=<ParameterValue>. A JSON file can be a local file with a "file://" prefix. The file content should look like: [ { "ParameterKey": "KeyPairName", "ParameterValue": "MyKey" }]'
+    required: false
+  no-execute-changeset:
+    description: "Indicates whether to execute to the change set or have it reviewed. Defaults to 0 (execute the change set)"
+    required: false
+    default: "0"
+  no-delete-failed-changeset:
+    description: "Indicates whether to delete to a failed change set. Defaults to 0 (delete the failed changeset)"
+    required: false
+    default: "0"
+  no-fail-on-empty-changeset:
+    description: "If the CloudFormation change set is empty, do not fail. Defaults to 1 (not fail on empty change set)"
+    required: false
+    default: "1"
+  disable-rollback:
+    description: "Disable rollback of the stack if stack creation fails. Defaults to 0 (rollback if stack creation fails). This input is only used for stack creation, not for stack update"
+    required: false
+    default: "0"
+  timeout-in-minutes:
+    description: "The amount of time that can pass before the stack status becomes CREATE_FAILED. This input is only used for stack creation, not for stack update"
+    required: false
+  notification-arns:
+    description: "The comma-delimited list of Amazon SNS topic ARNs to publish stack related events"
+    required: false
+  role-arn:
+    description: "The Amazon Resource Name (ARN) of an AWS Identity and Access Management (IAM) role that AWS CloudFormation assumes to create the stack. AWS CloudFormation uses the role's credentials to make calls on your behalf. AWS CloudFormation always uses this role for all future operations on the stack. As long as users have permission to operate on the stack, AWS CloudFormation uses this role even if the users don't have permission to pass it. Ensure that the role grants least privilege. If you don't specify a value, AWS CloudFormation uses the role that was previously associated with the stack"
+    required: false
+  tags:
+    description: 'Key-value pairs to associate with this stack. This input should be JSON-formatted, for example [ { "Key": "string", "Value": "string" } ]'
+    required: false
+  termination-protection:
+    description: "Whether to enable termination protection on the specified stack. Defaults to 0 (terminated protection disabled). This input is only used for stack creation, not for stack update"
+    required: false
+    default: "0"
+  concurrency:
+    description: "Maximum number of stacks created/updated in parallel. Defaults to 5"
+    required: false
+    default: "5"
+outputs:
+  stack-name_stack-id:
+    description: "The id of the deployed stack (replace stack-name with the name of your stack). "
+  stack-name_output_logical-id:
+    description: "The outputs of the deployed stack (replace stack-name with the name of your stack and logical-id with the logical ID of your output)"
+runs:
+  using: "node16"
+  main: "dist/index.js"
