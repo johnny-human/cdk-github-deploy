@@ -142,7 +142,7 @@ async function installCdk() {
 async function buildCdk() {
   try {
     await installCdk()
-    const result = await runCommand('cdk build --outputs-file cdk.out')
+    const result = await runCommand('npx cdk build --outputs-file cdk.out')
     console.log(result)
   } catch (error) {
     console.error(error)
