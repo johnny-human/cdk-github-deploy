@@ -1,6 +1,6 @@
 {
-  "name": "aws-actions-aws-cloudformation-github-deploy",
-  "version": "2.0.0",
+  "name": "cdk-github-deploy",
+  "version": "1.0.0",
   "description": "Deploys a AWS CloudFormation stack",
   "main": "lib/main.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/widdix/aws-cloudformation-github-deploy.git"
+    "url": "git+https://github.com/johnny-human/cdk-github-deploy.git"
   },
   "keywords": [
     "AWS",
@@ -21,15 +21,15 @@
   "author": "AWS",
   "contributors": [
     {
-      "name": "Michael Wittig",
-      "email": "michael@widdix.de"
+      "name": "John Wennstrøm",
+      "email": "john.wennstrom@protonmail.com"
     }
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/widdix/aws-cloudformation-github-deploy/issues"
+    "url": "https://github.com/johnny-human/cdk-github-deploy/issues"
   },
-  "homepage": "https://github.com/widdix/aws-cloudformation-github-deploy#readme",
+  "homepage": "https://github.com/johnny-human/cdk-github-deploy#readme",
   "dependencies": {
     "@actions/core": "1.10.0",
     "aws-sdk": "2.1237.0",
