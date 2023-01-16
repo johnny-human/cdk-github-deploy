@@ -143,7 +143,6 @@ async function buildCdk() {
   try {
     await installCdk()
     const result = await runCommand('npx cdk synth --outputs-file cdk.out')
-    console.log(result)
   } catch (error) {
     console.error(error)
   }
@@ -153,12 +152,18 @@ export async function run(): Promise<void> {
   try {
     await buildCdk()
 
+    console.log('PREPARE ENVIRONMENT')
+
+    process.env['AWS_REGION'] = 'eu-central-1'
+
     const AWS_ACCESS_KEY_ID = core.getInput('aws_access_key_id')
     const AWS_SECRET_ACCESS_KEY = core.getInput('aws_secret_access_key')
     process.env['AWS_ACCESS_KEY_ID'] = AWS_ACCESS_KEY_ID
     process.env['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
 
     console.log(
+      1,
+      process.env['AWS_REGION'],
       process.env['AWS_ACCESS_KEY_ID'],
       process.env['AWS_SECRET_ACCESS_KEY']
     )
