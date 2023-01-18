@@ -151,7 +151,7 @@ export async function run(): Promise<void> {
         await installCdk()
         await buildCdk()
 
-        const tasks = options.template.map((_: any, i: number) =>
+        const tasks = options.stackName.map((_: any, i: number) =>
             limit(() =>
                 task(cfn, {
                     // template: options.template[i],
