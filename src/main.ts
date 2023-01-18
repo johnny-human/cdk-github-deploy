@@ -20,7 +20,7 @@ export type Inputs = {
 }
 
 export type Options = {
-    template: string
+    // template: string
     stackName: string
     capabilities?: string
     roleARN?: string
@@ -49,20 +49,19 @@ export async function task(
     let templateBody
     let templateUrl
 
-    if (isUrl(options.template)) {
-        core.debug(
-            `${options.stackName}: Using CloudFormation Stack from Amazon S3 Bucket`
-        )
-        templateUrl = options.template
-    } else {
-        core.debug(
-            `${options.stackName}: Loading CloudFormation Stack template`
-        )
-        const templateFilePath = path.isAbsolute(options.template)
-            ? options.template
-            : path.join(GITHUB_WORKSPACE, options.template)
-        templateBody = fs.readFileSync(templateFilePath, 'utf8')
-    }
+    // if (isUrl(options.template)) {
+    //     core.debug(
+    //         `${options.stackName}: Using CloudFormation Stack from Amazon S3 Bucket`
+    //     )
+    //     templateUrl = options.template
+    // } else {
+    core.debug(`${options.stackName}: Loading CloudFormation Stack template`)
+    const template = `cdk.out/${options.stackName}.template.json`
+    const templateFilePath = path.isAbsolute(template)
+        ? template
+        : path.join(GITHUB_WORKSPACE, template)
+    templateBody = fs.readFileSync(templateFilePath, 'utf8')
+    // }
 
     // CloudFormation Stack Parameter for the creation or update
     const params: CreateStackInput = {
@@ -154,7 +153,7 @@ export async function run(): Promise<void> {
         const tasks = options.template.map((_: any, i: number) =>
             limit(() =>
                 task(cfn, {
-                    template: options.template[i],
+                    // template: options.template[i],
                     stackName: options.stackName[i],
                     capabilities: pickOption(options.capabilities, i),
                     roleARN: pickOption(options.roleARN, i),

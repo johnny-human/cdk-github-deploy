@@ -14,16 +14,16 @@ export function getConfiguration(): any {
     const options: any = {}
 
     options.template = parseMultiline(
-        core.getInput('template', { required: true })
+        core.getInput('template', { required: false })
     )
 
     options.stackName = parseMultiline(
         core.getInput('name', { required: true })
     )
 
-    if (options.template.length != options.stackName.length) {
-        throw new Error('number of input lemplate lines must match name lines')
-    }
+    // if (options.template.length != options.stackName.length) {
+    //     throw new Error('number of input lemplate lines must match name lines')
+    // }
 
     options.capabilities = parseMultiline(
         core.getInput('capabilities', {
