@@ -44,6 +44,7 @@ export async function task(
     cfn: aws.CloudFormation,
     options: Options
 ): Promise<void> {
+    console.log(options)
     const { GITHUB_WORKSPACE = __dirname } = process.env
     // Setup CloudFormation Stack
     let templateBody
@@ -128,7 +129,7 @@ async function installCdk() {
 
 async function buildCdk() {
     try {
-        const result = await runCommand('npx cdk synth --outputs-file cdk.out')
+        const result = await runCommand('npx cdk synth')
         console.error(result)
     } catch (error) {
         console.error(error)
