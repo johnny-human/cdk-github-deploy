@@ -129,7 +129,7 @@ async function installCdk() {
 
 async function buildCdk() {
     try {
-        const result = await runCommand('npx cdk synth')
+        const result = await runCommand('npx cdk synth --outputs-file cdk.out')
         core.debug(result)
     } catch (error) {
         core.error(error as string)
