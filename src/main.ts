@@ -136,6 +136,23 @@ async function buildCdk() {
     }
 }
 
+function publishAssets() {
+    const options = getConfiguration()
+
+    try {
+        options.stackName.map((_: any, i: number) => {
+            const assetFilePath = `${options.stackName[i]}.assets.json`
+
+            const result = runCommand(
+                `node node_modules/cdk-assets/bin/cdk-assets publish cdk.out/${assetFilePath}`
+            )
+            console.log(result)
+        })
+    } catch (error) {
+        console.error(error)
+    }
+}
+
 export async function run(): Promise<void> {
     try {
         const cfn = new aws.CloudFormation({ ...clientConfiguration })
@@ -150,6 +167,7 @@ export async function run(): Promise<void> {
 
         await installCdk()
         await buildCdk()
+        publishAssets()
 
         const tasks = options.stackName.map((_: any, i: number) =>
             limit(() =>
