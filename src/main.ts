@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import { deployStack, getStackOutputs } from './deploy'
 import { isUrl, parseNumber, parseParameters, runCommand } from './utils'
 import { getConfiguration } from './inputs'
+import { stringify } from 'querystring'
 
 export type CreateStackInput = aws.CloudFormation.Types.CreateStackInput
 export type CreateChangeSetInput = aws.CloudFormation.Types.CreateChangeSetInput
@@ -44,7 +45,6 @@ export async function task(
     cfn: aws.CloudFormation,
     options: Options
 ): Promise<void> {
-    console.log(options)
     const { GITHUB_WORKSPACE = __dirname } = process.env
     // Setup CloudFormation Stack
     let templateBody
@@ -121,18 +121,18 @@ function pickOption<Type>(arr: Type[], i: number): Type | undefined {
 async function installCdk() {
     try {
         const result = await runCommand('npm install -g aws-cdk')
-        console.log(result)
+        core.debug(result)
     } catch (error) {
-        console.error(error)
+        core.error(error as string)
     }
 }
 
 async function buildCdk() {
     try {
         const result = await runCommand('npx cdk synth --outputs-file cdk.out')
-        console.error(result)
+        core.debug(result)
     } catch (error) {
-        console.error(error)
+        core.error(error as string)
     }
 }
 
@@ -209,7 +209,7 @@ export async function run(): Promise<void> {
         if (err instanceof Error || typeof err === 'string') {
             core.setFailed(err)
             // @ts-ignore
-            console.debug(err.stack)
+            core.debug(err.stack)
         }
     }
 }
