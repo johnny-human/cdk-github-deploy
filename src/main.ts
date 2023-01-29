@@ -144,7 +144,7 @@ function publishAssets() {
             const assetFilePath = `${options.stackName[i]}.assets.json`
 
             const result = runCommand(
-                `node node_modules/cdk-assets/bin/cdk-assets publish cdk.out/${assetFilePath}`
+                `node node_modules/cdk-assets/bin/cdk-assets publish -p cdk.out/${assetFilePath}`
             )
             console.log(result)
         })
