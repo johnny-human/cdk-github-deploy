@@ -190,9 +190,9 @@ export function getConfiguration(): any {
         )
     }
 
-    const AWS_ACCESS_KEY_ID = core.getInput('aws_access_key_id')
-    const AWS_SECRET_ACCESS_KEY = core.getInput('aws_secret_access_key')
-    const AWS_REGION = core.getInput('aws_region')
+    const AWS_ACCESS_KEY_ID = core.getInput('aws-access-key-id')
+    const AWS_SECRET_ACCESS_KEY = core.getInput('aws-secret-access-key')
+    const AWS_REGION = core.getInput('aws-region')
     process.env['AWS_ACCESS_KEY_ID'] = AWS_ACCESS_KEY_ID
     process.env['AWS_SECRET_ACCESS_KEY'] = AWS_SECRET_ACCESS_KEY
     process.env['AWS_REGION'] = AWS_REGION

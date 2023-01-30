@@ -144,7 +144,7 @@ function publishAssets() {
             const assetFilePath = `${options.stackName[i]}.assets.json`
 
             const result = runCommand(
-                `node node_modules/cdk-assets/bin/cdk-assets publish -p cdk.out/${assetFilePath}`
+                `AWS_ACCESS_KEY_ID='${process.env['AWS_ACCESS_KEY_ID']}' AWS_SECRET_ACCESS_KEY='${process.env['AWS_SECRET_ACCESS_KEY']}' AWS_REGION='${process.env['AWS_REGION']}' node node_modules/cdk-assets/bin/cdk-assets publish -p cdk.out/${assetFilePath}`
             )
             console.log(result)
         })
