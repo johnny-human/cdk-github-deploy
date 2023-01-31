@@ -128,28 +128,32 @@ async function installCdk() {
 }
 
 async function buildCdk() {
+    const options = getConfiguration()
+
     try {
-        const result = await runCommand('npx cdk synth --outputs-file cdk.out')
+        const result = await runCommand(
+            `ENVIRONMENT=${options.environment} npx cdk synth --outputs-file cdk.out`
+        )
         core.debug(result)
     } catch (error) {
         core.error(error as string)
     }
 }
 
-function publishAssets() {
+async function publishAssets() {
     const options = getConfiguration()
 
     try {
-        options.stackName.map((_: any, i: number) => {
+        options.stackName.map(async (_: any, i: number) => {
             const assetFilePath = `${options.stackName[i]}.assets.json`
 
-            const result = runCommand(
+            const result = await runCommand(
                 `AWS_ACCESS_KEY_ID='${process.env['AWS_ACCESS_KEY_ID']}' AWS_SECRET_ACCESS_KEY='${process.env['AWS_SECRET_ACCESS_KEY']}' AWS_REGION='${process.env['AWS_REGION']}' node node_modules/cdk-assets/bin/cdk-assets publish -p cdk.out/${assetFilePath}`
             )
-            console.log(result)
+            core.debug(result)
         })
     } catch (error) {
-        console.error(error)
+        core.error(error as string)
     }
 }
 
