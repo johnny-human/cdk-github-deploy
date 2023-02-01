@@ -26,6 +26,8 @@ async function installCdk() {
 export async function run(): Promise<void> {
     const config = getConfiguration()
 
+    core.debug(config.synth)
+
     if (!config.synth && !config.assets && !config.deploy) {
         core.setFailed(
             'You must specify one type of job, either `synth: true` or `deploy: true`'
