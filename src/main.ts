@@ -28,17 +28,16 @@ export async function run(): Promise<void> {
 
     if (!config.synth && !config.assets && !config.deploy) {
         core.setFailed(
-            'You must specify one type of job, either `synth: true`, `assets: true` or `deploy: true`'
+            'You must specify one type of job, either `synth: true` or `deploy: true`'
         )
     }
 
     if (config.synth) {
         await installCdk()
         await synth(config)
-    } else if (config.assets) {
+    } else if (config.deploy) {
         await installCdk()
         await assets(config)
-    } else if (config.deploy) {
         await deploy(config)
     }
 }
