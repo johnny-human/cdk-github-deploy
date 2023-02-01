@@ -1,184 +1,139 @@
 import * as core from '@actions/core'
 import * as aws from 'aws-sdk'
-import { CreateChangeSetInput, CreateStackInput } from './main'
+import pLimit from 'p-limit'
+import * as fs from 'fs'
+import * as path from 'path'
+import { parseParameters, pickOption, runCommand } from './utils'
+import { deployStack, getStackOutputs } from './deployStack'
 
-export type Stack = aws.CloudFormation.Stack
-
-export async function cleanupChangeSet(
-    cfn: aws.CloudFormation,
-    stack: Stack,
-    params: CreateChangeSetInput,
-    noEmptyChangeSet?: boolean,
+export type Configuration = {
+    capabilities?: string
+    roleARN?: string
+    disableRollback?: boolean
+    timeoutInMinutes?: number
+    tags?: aws.CloudFormation.Tags
+    terminationProtection?: boolean
+    parameterOverrides?: string
+    noEmptyChangeSet?: boolean
+    noExecuteChangeSet?: boolean
     noDeleteFailedChangeSet?: boolean
-): Promise<string | undefined> {
-    const knownErrorMessages = [
-        `No updates are to be performed`,
-        `The submitted information didn't contain changes`
-    ]
-
-    const changeSetStatus = await cfn
-        .describeChangeSet({
-            ChangeSetName: params.ChangeSetName,
-            StackName: params.StackName
-        })
-        .promise()
-
-    if (changeSetStatus.Status === 'FAILED') {
-        core.debug(`${stack.StackName}: Deleting failed Change Set`)
-
-        if (noDeleteFailedChangeSet === false) {
-            await cfn
-                .deleteChangeSet({
-                    ChangeSetName: params.ChangeSetName,
-                    StackName: params.StackName
-                })
-                .promise()
-        }
-
-        if (
-            noEmptyChangeSet &&
-            knownErrorMessages.some(err =>
-                changeSetStatus.StatusReason?.includes(err)
-            )
-        ) {
-            return stack.StackId
-        }
-
-        throw new Error(
-            `Failed to create Change Set: ${changeSetStatus.StatusReason}`
-        )
-    }
 }
 
-export async function updateStack(
-    cfn: aws.CloudFormation,
-    stack: Stack,
-    params: CreateChangeSetInput,
-    noEmptyChangeSet?: boolean,
-    noExecuteChangeSet?: boolean,
-    noDeleteFailedChangeSet?: boolean
-): Promise<string | undefined> {
-    core.debug(`${stack.StackName}: Creating CloudFormation Change Set`)
-    await cfn.createChangeSet(params).promise()
-
-    try {
-        core.debug(
-            `${stack.StackName}: Waiting for CloudFormation Change Set creation`
-        )
-        await cfn
-            .waitFor('changeSetCreateComplete', {
-                ChangeSetName: params.ChangeSetName,
-                StackName: params.StackName
-            })
-            .promise()
-    } catch (_) {
-        return cleanupChangeSet(
-            cfn,
-            stack,
-            params,
-            noEmptyChangeSet,
-            noDeleteFailedChangeSet
-        )
-    }
-
-    if (noExecuteChangeSet === true) {
-        core.debug(`${stack.StackName}: Not executing the change set`)
-        return stack.StackId
-    }
-
-    core.debug(`${stack.StackName}: Executing CloudFormation change set`)
-    await cfn
-        .executeChangeSet({
-            ChangeSetName: params.ChangeSetName,
-            StackName: params.StackName
-        })
-        .promise()
-
-    core.debug(`${stack.StackName}: Updating CloudFormation stack`)
-    await cfn
-        .waitFor('stackUpdateComplete', { StackName: stack.StackId })
-        .promise()
-
-    return stack.StackId
+export type DeployConfig = {
+    stacks: Array<string>
+    concurrency?: number
 }
 
-async function getStack(
-    cfn: aws.CloudFormation,
-    stackNameOrId: string
-): Promise<Stack | undefined> {
-    try {
-        const stacks = await cfn
-            .describeStacks({
-                StackName: stackNameOrId
-            })
-            .promise()
-        return stacks.Stacks?.[0]
-    } catch (e) {
-        if (e instanceof Error && e.message.match(/does not exist/)) {
-            return undefined
-        }
-        throw e
-    }
+export type TaskConfig = {
+    stack: string
 }
 
-export async function deployStack(
-    cfn: aws.CloudFormation,
-    params: CreateStackInput,
-    noEmptyChangeSet?: boolean,
-    noExecuteChangeSet?: boolean,
-    noDeleteFailedChangeSet?: boolean
-): Promise<string | undefined> {
-    const stack = await getStack(cfn, params.StackName)
+// The custom client configuration for the CloudFormation clients.
+const clientConfiguration = {
+    customUserAgent: 'aws-cloudformation-github-deploy-for-github-actions'
+}
 
-    if (!stack) {
-        core.debug(`${params.StackName}: Creating CloudFormation Stack`)
-
-        const stack = await cfn.createStack(params).promise()
-        await cfn
-            .waitFor('stackCreateComplete', { StackName: params.StackName })
-            .promise()
-
-        return stack.StackId
-    }
-
-    return await updateStack(
-        cfn,
-        stack,
-        {
-            ChangeSetName: `${params.StackName}-CS`,
-            ...{
-                StackName: params.StackName,
-                TemplateBody: params.TemplateBody,
-                TemplateURL: params.TemplateURL,
-                Parameters: params.Parameters,
-                Capabilities: params.Capabilities,
-                ResourceTypes: params.ResourceTypes,
-                RoleARN: params.RoleARN,
-                RollbackConfiguration: params.RollbackConfiguration,
-                NotificationARNs: params.NotificationARNs,
-                Tags: params.Tags
-            }
-        },
+export const deploy = async (config: Configuration & DeployConfig) => {
+    const {
+        concurrency,
+        stacks,
+        capabilities,
+        roleARN,
+        disableRollback,
+        timeoutInMinutes,
+        tags,
+        terminationProtection,
+        parameterOverrides,
         noEmptyChangeSet,
         noExecuteChangeSet,
         noDeleteFailedChangeSet
-    )
-}
+    } = config
+    try {
+        const cfn = new aws.CloudFormation({ ...clientConfiguration })
+        const limit = pLimit(concurrency || 5)
 
-export async function getStackOutputs(
-    cfn: aws.CloudFormation,
-    stackId: string
-): Promise<Map<string, string>> {
-    const outputs = new Map<string, string>()
-    const stack = await getStack(cfn, stackId)
+        const tasks = config.stacks.map((_: any, i: number) =>
+            limit(() =>
+                task(cfn, {
+                    stack: stacks[i],
+                    capabilities,
+                    roleARN,
+                    disableRollback,
+                    timeoutInMinutes,
+                    tags,
+                    terminationProtection,
+                    parameterOverrides,
+                    noEmptyChangeSet,
+                    noExecuteChangeSet,
+                    noDeleteFailedChangeSet
+                }).catch((err: any) => {
+                    core.error(`${stacks[i]}: Error`)
+                    throw err
+                })
+            )
+        )
 
-    if (stack && stack.Outputs) {
-        for (const output of stack.Outputs) {
-            if (output.OutputKey && output.OutputValue) {
-                outputs.set(output.OutputKey, output.OutputValue)
-            }
+        await Promise.all(tasks)
+    } catch (err) {
+        if (err instanceof Error || typeof err === 'string') {
+            core.setFailed(err)
+            // @ts-ignore
+            core.debug(err.stack)
         }
     }
+}
 
-    return outputs
+const getTemplateBody = (stack: string) => {
+    const { GITHUB_WORKSPACE = __dirname } = process.env
+
+    core.debug(`${stack}: Loading Stack template`)
+
+    const file = `cdk.out/${stack}.template.json`
+    const filePath = path.isAbsolute(file)
+        ? file
+        : path.join(GITHUB_WORKSPACE, file)
+
+    return fs.readFileSync(filePath, 'utf8')
+}
+
+const task = async (
+    cfn: aws.CloudFormation,
+    config: Configuration & TaskConfig
+): Promise<void> => {
+    // CloudFormation Stack Parameter for the creation or update
+    const params: aws.CloudFormation.Types.CreateStackInput = {
+        StackName: config.stack,
+        TemplateBody: getTemplateBody(config.stack),
+        EnableTerminationProtection: config.terminationProtection,
+        RoleARN: config.roleARN,
+        DisableRollback: config.disableRollback,
+        TimeoutInMinutes: config.timeoutInMinutes,
+        Tags: config.tags
+    }
+
+    if (config.capabilities) {
+        params.Capabilities = [
+            ...config.capabilities.split(',').map(cap => cap.trim())
+        ]
+    }
+
+    if (config.parameterOverrides) {
+        params.Parameters = parseParameters(config.parameterOverrides.trim())
+    }
+
+    const stackId = await deployStack(
+        cfn,
+        params,
+        config.noEmptyChangeSet,
+        config.noExecuteChangeSet,
+        config.noDeleteFailedChangeSet
+    )
+    core.setOutput(`${config.stack}-stack-id`, stackId || 'UNKNOWN')
+
+    if (stackId) {
+        const outputs = await getStackOutputs(cfn, stackId)
+        for (const [logicalId, value] of outputs) {
+            core.setOutput(`${config.stack}_output_${logicalId}`, value)
+        }
+    }
 }
