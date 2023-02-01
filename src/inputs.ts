@@ -4,7 +4,11 @@ import { parseTags, parseString, parseNumber, parseMultiline } from './utils'
 export function getConfiguration(): any {
     const options: any = {}
 
-    options.stacks = parseMultiline(core.getInput('stacks', { required: true }))
+    options.stacks = parseMultiline(core.getInput('stacks', { required: false }))
+
+    options.synth = !!+core.getInput('synth', { required: false })
+
+    options.deploy = !!+core.getInput('deploy', { required: false })
 
     options.capabilities = core.getInput('capabilities', { required: false })
 
