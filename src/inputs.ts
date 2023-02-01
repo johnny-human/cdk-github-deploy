@@ -8,9 +8,9 @@ export function getConfiguration(): any {
         core.getInput('stacks', { required: false })
     )
 
-    options.synth = !!+core.getInput('synth', { required: false })
+    options.synth = !!core.getInput('synth', { required: false })
 
-    options.deploy = !!+core.getInput('deploy', { required: false })
+    options.deploy = !!core.getInput('deploy', { required: false })
 
     options.capabilities = core.getInput('capabilities', { required: false })
 
@@ -18,22 +18,22 @@ export function getConfiguration(): any {
         required: false
     })
 
-    options.noEmptyChangeSet = !!+core.getInput('no-fail-on-empty-changeset', {
+    options.noEmptyChangeSet = !!core.getInput('no-fail-on-empty-changeset', {
         required: false
     })
 
-    options.noExecuteChangeSet = !!+core.getInput('no-execute-changeset', {
+    options.noExecuteChangeSet = !!core.getInput('no-execute-changeset', {
         required: false
     })
 
-    options.noDeleteFailedChangeSet = !!+core.getInput(
+    options.noDeleteFailedChangeSet = !!core.getInput(
         'no-delete-failed-changeset',
         {
             required: false
         }
     )
 
-    options.disableRollback = !!+core.getInput('disable-rollback', {
+    options.disableRollback = !!core.getInput('disable-rollback', {
         required: false
     })
 
@@ -55,7 +55,7 @@ export function getConfiguration(): any {
         })
     )
 
-    options.terminationProtection = !!+core.getInput('termination-protection', {
+    options.terminationProtection = !!core.getInput('termination-protection', {
         required: false
     })
 
