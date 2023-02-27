@@ -1,7 +1,9 @@
 import * as aws from 'aws-sdk'
 import * as fs from 'fs'
+import * as core from '@actions/core'
 import { Parameter } from 'aws-sdk/clients/cloudformation'
 import * as child_process from 'child_process'
+import path from 'path'
 
 export function isUrl(s: string): boolean {
     let url
@@ -92,4 +94,23 @@ export async function runCommand(command: string): Promise<string> {
             }
         })
     })
+}
+
+/**
+ * Provide content of a stack tempalte
+ *
+ * @param stack
+ * @returns Content of the stack
+ */
+export const getTemplateBody = (stack: string) => {
+    const { GITHUB_WORKSPACE = __dirname } = process.env
+
+    core.debug(`${stack}: Loading Stack template`)
+
+    const file = `cdk.out/${stack}.template.json`
+    const filePath = path.isAbsolute(file)
+        ? file
+        : path.join(GITHUB_WORKSPACE, file)
+
+    return fs.readFileSync(filePath, 'utf8')
 }
