@@ -1,6 +1,9 @@
 import * as core from '@actions/core'
 import * as aws from 'aws-sdk'
 import { CreateChangeSetInput, CreateStackInput } from './main'
+import ShortUniqueId from 'short-unique-id'
+
+const uid = new ShortUniqueId()
 
 export type Stack = aws.CloudFormation.Stack
 
@@ -145,7 +148,7 @@ export async function deployStack(
         cfn,
         stack,
         {
-            ChangeSetName: `${params.StackName}-CS`,
+            ChangeSetName: `${params.StackName}-${uid.seq()}`,
             ...{
                 StackName: params.StackName,
                 TemplateBody: params.TemplateBody,
