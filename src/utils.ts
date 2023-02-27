@@ -15,6 +15,28 @@ export function isUrl(s: string): boolean {
     return url.protocol === 'https:'
 }
 
+export function pickOption<T>(arr: T[], i: number): T | undefined {
+    if (arr.length === 0) {
+        return undefined
+    }
+    if (arr.length === 1) {
+        return arr[0]
+    }
+    return arr[i]
+}
+
+/**
+ * Parse multiline
+ * We don't use core.getMultilineInput() because it filters out empty lines
+ */
+export function parseMultiline(str: string): string[] {
+    if (str === undefined) {
+        // some tests pass undefined instead of an empty string as core.getInput() would do
+        return ['']
+    }
+    return str.split('\n')
+}
+
 export function parseTags(s: string): aws.CloudFormation.Tags | undefined {
     let json
 
