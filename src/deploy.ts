@@ -83,6 +83,12 @@ export const deploy = async (config: Configuration & DeployConfig) => {
     }
 }
 
+/**
+ * Provide content of a stack tempalte
+ *
+ * @param stack
+ * @returns Content of the stack
+ */
 const getTemplateBody = (stack: string) => {
     const { GITHUB_WORKSPACE = __dirname } = process.env
 
@@ -96,6 +102,16 @@ const getTemplateBody = (stack: string) => {
     return fs.readFileSync(filePath, 'utf8')
 }
 
+/**
+ * Deploy a CloudFormation Stack
+ *
+ * @param cfn CloudFormation client
+ * @param config Configuration
+ *
+ * @returns The Stack ID
+ *
+ * @throws Error
+ */
 const task = async (
     cfn: aws.CloudFormation,
     config: Configuration & TaskConfig
