@@ -34,11 +34,11 @@ export async function run(): Promise<void> {
         )
     }
 
+    await installCdk()
+
     if (config.synth) {
-        await installCdk()
         await synth(config)
     } else if (config.deploy) {
-        await installCdk()
         await assets(config)
         await deploy(config)
     }

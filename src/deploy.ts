@@ -113,160 +113,9 @@ function parseMultiline(str: string): string[] {
     return str.split('\n')
 }
 
-export async function run(): Promise<void> {
+export async function deploy(config: any): Promise<void> {
     try {
         const cfn = new aws.CloudFormation({ ...clientConfiguration })
-
-        // Get inputs
-        const template = parseMultiline(
-            core.getInput('template', { required: true })
-        )
-        const stackName = parseMultiline(
-            core.getInput('name', { required: true })
-        )
-        const capabilities = parseMultiline(
-            core.getInput('capabilities', {
-                required: false
-            })
-        )
-        const parameterOverrides = parseMultiline(
-            core.getInput('parameter-overrides', {
-                required: false
-            })
-        )
-        const noEmptyChangeSet = parseMultiline(
-            core.getInput('no-fail-on-empty-changeset', {
-                required: false
-            })
-        ).map(x => !!+x)
-        const noExecuteChangeSet = parseMultiline(
-            core.getInput('no-execute-changeset', {
-                required: false
-            })
-        ).map(x => !!+x)
-        const noDeleteFailedChangeSet = parseMultiline(
-            core.getInput('no-delete-failed-changeset', {
-                required: false
-            })
-        ).map(x => !!+x)
-        const disableRollback = parseMultiline(
-            core.getInput('disable-rollback', {
-                required: false
-            })
-        ).map(x => !!+x)
-        const timeoutInMinutes = parseMultiline(
-            core.getInput('timeout-in-minutes', {
-                required: false
-            })
-        ).map(parseNumber)
-        const notificationARNs = parseMultiline(
-            core.getInput('notification-arns', {
-                required: false
-            })
-        ).map(parseARNs)
-        const roleARN = parseMultiline(
-            core.getInput('role-arn', {
-                required: false
-            })
-        ).map(parseString)
-        const tags = parseMultiline(
-            core.getInput('tags', {
-                required: false
-            })
-        ).map(parseTags)
-        const terminationProtection = parseMultiline(
-            core.getInput('termination-protection', {
-                required: false
-            })
-        ).map(x => !!+x)
-
-        if (template.length != stackName.length) {
-            throw new Error(
-                'number of input lemplate lines must match name lines'
-            )
-        }
-        if (
-            capabilities.length !== 1 &&
-            capabilities.length != stackName.length
-        ) {
-            throw new Error(
-                'number input capabilities lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            parameterOverrides.length !== 1 &&
-            parameterOverrides.length != stackName.length
-        ) {
-            throw new Error(
-                'number input parameter-overrides lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            noExecuteChangeSet.length !== 1 &&
-            noExecuteChangeSet.length != stackName.length
-        ) {
-            throw new Error(
-                'number input no-execute-changeset lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            noDeleteFailedChangeSet.length !== 1 &&
-            noDeleteFailedChangeSet.length != stackName.length
-        ) {
-            throw new Error(
-                'number input no-delete-failed-changeset lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            noEmptyChangeSet.length !== 1 &&
-            noEmptyChangeSet.length != stackName.length
-        ) {
-            throw new Error(
-                'number input no-fail-on-empty-changeset lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            disableRollback.length !== 1 &&
-            disableRollback.length != stackName.length
-        ) {
-            throw new Error(
-                'number input disable-rollback lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            timeoutInMinutes.length !== 1 &&
-            timeoutInMinutes.length != stackName.length
-        ) {
-            throw new Error(
-                'number input timeout-in-minutes lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            notificationARNs.length !== 1 &&
-            notificationARNs.length != stackName.length
-        ) {
-            throw new Error(
-                'number input notification-arns lines must match name lines or must be a single line'
-            )
-        }
-        if (roleARN.length !== 1 && roleARN.length != stackName.length) {
-            throw new Error(
-                'number input role-arn lines must match name lines or must be a single line'
-            )
-        }
-        if (tags.length !== 1 && tags.length != stackName.length) {
-            throw new Error(
-                'number input tags lines must match name lines or must be a single line'
-            )
-        }
-        if (
-            terminationProtection.length !== 1 &&
-            terminationProtection.length != stackName.length
-        ) {
-            throw new Error(
-                'number input termination-protection lines must match name lines or must be a single line'
-            )
-        }
 
         const concurrency = parseNumber(
             core.getInput('concurrency', {
@@ -275,26 +124,35 @@ export async function run(): Promise<void> {
         )
         const limit = pLimit(concurrency || 5)
 
-        const tasks = template.map((_, i) =>
+        const tasks = config.stacks.map((_: any, i: number) =>
             limit(() =>
                 task(cfn, {
-                    stackName: stackName[i],
-                    capabilities: pickOption(capabilities, i),
-                    roleARN: pickOption(roleARN, i),
-                    notificationARNs: pickOption(notificationARNs, i),
-                    disableRollback: pickOption(disableRollback, i),
-                    timeoutInMinutes: pickOption(timeoutInMinutes, i),
-                    tags: pickOption(tags, i),
-                    terminationProtection: pickOption(terminationProtection, i),
-                    parameterOverrides: pickOption(parameterOverrides, i),
-                    noEmptyChangeSet: pickOption(noEmptyChangeSet, i),
-                    noExecuteChangeSet: pickOption(noExecuteChangeSet, i),
+                    stackName: config.stacks[i],
+                    capabilities: pickOption(config.capabilities, i),
+                    roleARN: pickOption(config.roleARN, i),
+                    notificationARNs: pickOption(config.notificationARNs, i),
+                    disableRollback: pickOption(config.disableRollback, i),
+                    timeoutInMinutes: pickOption(config.timeoutInMinutes, i),
+                    tags: pickOption(config.tags, i),
+                    terminationProtection: pickOption(
+                        config.terminationProtection,
+                        i
+                    ),
+                    parameterOverrides: pickOption(
+                        config.parameterOverrides,
+                        i
+                    ),
+                    noEmptyChangeSet: pickOption(config.noEmptyChangeSet, i),
+                    noExecuteChangeSet: pickOption(
+                        config.noExecuteChangeSet,
+                        i
+                    ),
                     noDeleteFailedChangeSet: pickOption(
-                        noDeleteFailedChangeSet,
+                        config.noDeleteFailedChangeSet,
                         i
                     )
                 }).catch(err => {
-                    core.error(`${stackName[i]}: Error`)
+                    core.error(`${config.stacks[i]}: Error`)
                     throw err
                 })
             )
@@ -308,9 +166,4 @@ export async function run(): Promise<void> {
             console.debug(err.stack)
         }
     }
-}
-
-/* istanbul ignore next */
-if (require.main === module) {
-    run()
 }
