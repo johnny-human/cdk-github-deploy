@@ -7,6 +7,15 @@ inputs:
   stacks:
     description: "The name of the stacks"
     required: false
+  synth:
+    description: "Run synth on infrastructure"
+    required: false
+  deploy:
+    description: "Deploy infrastructure"
+    required: false
+  environment:
+    description: "Set the environment"
+    required: false
   capabilities:
     description: "The comma-delimited list of stack template capabilities to acknowledge. Defaults to CAPABILITY_IAM"
     required: false
