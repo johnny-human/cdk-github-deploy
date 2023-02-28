@@ -29,9 +29,9 @@ export async function run(): Promise<void> {
 
     core.debug(config.synth)
 
-    if (!config.synth && !config.assets && !config.deploy) {
+    if (!config.synth && !config.assets && !config.deploy && !config.diff) {
         core.setFailed(
-            'You must specify one type of job, either `synth: true` or `deploy: true`'
+            'You must specify one type of job, either `synth: true`, `deploy: true` or `diff: true`'
         )
     }
 
