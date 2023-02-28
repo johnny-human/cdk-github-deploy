@@ -16,6 +16,15 @@ inputs:
   environment:
     description: "Set the environment"
     required: false
+  aws-access-key-id:
+    description: "AWS access key Id"
+    required: false
+  aws-secret-access-key:
+    description: "AWS secret access key"
+    required: false
+  aws-region:
+    description: "AWS region"
+    required: false
   capabilities:
     description: "The comma-delimited list of stack template capabilities to acknowledge. Defaults to CAPABILITY_IAM"
     required: false
