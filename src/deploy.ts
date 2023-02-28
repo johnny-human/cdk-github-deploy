@@ -77,8 +77,6 @@ export async function task(
         params.Parameters = parseParameters(options.parameterOverrides.trim())
     }
 
-    console.log(options)
-
     const stackId = await deployStack(cfn, params, true, false, false)
     core.setOutput(`${options.stackName}_stack-id`, stackId || 'UNKNOWN')
 
