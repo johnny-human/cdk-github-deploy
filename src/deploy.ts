@@ -77,6 +77,8 @@ export async function task(
         params.Parameters = parseParameters(options.parameterOverrides.trim())
     }
 
+    console.log(options)
+
     const stackId = await deployStack(
         cfn,
         params,
