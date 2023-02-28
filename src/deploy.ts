@@ -79,13 +79,7 @@ export async function task(
 
     console.log(options)
 
-    const stackId = await deployStack(
-        cfn,
-        params,
-        options.noEmptyChangeSet,
-        options.noExecuteChangeSet,
-        options.noDeleteFailedChangeSet
-    )
+    const stackId = await deployStack(cfn, params, true, false, false)
     core.setOutput(`${options.stackName}_stack-id`, stackId || 'UNKNOWN')
 
     if (stackId) {
