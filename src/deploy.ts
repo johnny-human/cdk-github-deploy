@@ -94,25 +94,6 @@ export async function task(
     }
 }
 
-function pickOption<Type>(arr: Type[], i: number): Type | undefined {
-    if (arr.length === 0) {
-        return undefined
-    }
-    if (arr.length === 1) {
-        return arr[0]
-    }
-    return arr[i]
-}
-
-// we don't use core.getMultilineInput() because it filters out empty lines
-function parseMultiline(str: string): string[] {
-    if (str === undefined) {
-        // some tests pass undefined instead of an empty string as core.getInput() would do
-        return ['']
-    }
-    return str.split('\n')
-}
-
 export async function deploy(config: any): Promise<void> {
     try {
         const cfn = new aws.CloudFormation({ ...clientConfiguration })
@@ -128,29 +109,17 @@ export async function deploy(config: any): Promise<void> {
             limit(() =>
                 task(cfn, {
                     stackName: config.stacks[i],
-                    capabilities: pickOption(config.capabilities, i),
-                    roleARN: pickOption(config.roleARN, i),
-                    notificationARNs: pickOption(config.notificationARNs, i),
-                    disableRollback: pickOption(config.disableRollback, i),
-                    timeoutInMinutes: pickOption(config.timeoutInMinutes, i),
-                    tags: pickOption(config.tags, i),
-                    terminationProtection: pickOption(
-                        config.terminationProtection,
-                        i
-                    ),
-                    parameterOverrides: pickOption(
-                        config.parameterOverrides,
-                        i
-                    ),
-                    noEmptyChangeSet: pickOption(config.noEmptyChangeSet, i),
-                    noExecuteChangeSet: pickOption(
-                        config.noExecuteChangeSet,
-                        i
-                    ),
-                    noDeleteFailedChangeSet: pickOption(
-                        config.noDeleteFailedChangeSet,
-                        i
-                    )
+                    capabilities: config.capabilities,
+                    roleARN: config.roleARN,
+                    notificationARNs: config.notificationARNs,
+                    disableRollback: config.disableRollback,
+                    timeoutInMinutes: config.timeoutInMinutes,
+                    tags: config.tags,
+                    terminationProtection: config.terminationProtection,
+                    parameterOverrides: config.parameterOverrides,
+                    noEmptyChangeSet: config.noEmptyChangeSet,
+                    noExecuteChangeSet: config.noExecuteChangeSet,
+                    noDeleteFailedChangeSet: config.noDeleteFailedChangeSet
                 }).catch(err => {
                     core.error(`${config.stacks[i]}: Error`)
                     throw err
