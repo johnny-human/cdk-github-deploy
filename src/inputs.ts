@@ -75,8 +75,5 @@ export function getConfiguration(): any {
         'aws-secret-access-key'
     )
 
-    core.debug(options)
-    console.log(options)
-
     return options
 }

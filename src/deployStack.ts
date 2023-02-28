@@ -148,7 +148,7 @@ export async function deployStack(
         cfn,
         stack,
         {
-            ChangeSetName: `${params.StackName}-${uid.seq()}`,
+            ChangeSetName: `${params.StackName}-${uid()}`,
             ...{
                 StackName: params.StackName,
                 TemplateBody: params.TemplateBody,
