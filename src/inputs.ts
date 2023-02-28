@@ -12,6 +12,8 @@ export function getConfiguration(): any {
 
     options.deploy = !!core.getInput('deploy', { required: false })
 
+    options.diff = !!core.getInput('diff', { required: false })
+
     options.capabilities = core.getInput('capabilities', { required: false })
 
     options.parameterOverrides = core.getInput('parameter-overrides', {
@@ -61,6 +63,10 @@ export function getConfiguration(): any {
 
     options.environment = core.getInput('environment', {
         required: true
+    })
+
+    options.app = core.getInput('app', {
+        required: false
     })
 
     options.concurrency = parseNumber(

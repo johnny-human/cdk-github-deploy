@@ -7,6 +7,9 @@ inputs:
   stacks:
     description: "The name of the stacks"
     required: false
+  diff:
+    description: "Output stacks that has changes"
+    required: false
   synth:
     description: "Run synth on infrastructure"
     required: false
@@ -15,6 +18,9 @@ inputs:
     required: false
   environment:
     description: "Set the environment"
+    required: false
+  app:
+    description: "Set the --app string for diff command"
     required: false
   aws-access-key-id:
     description: "AWS access key Id"

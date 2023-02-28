@@ -5,6 +5,7 @@ import { getConfiguration } from './inputs'
 import { synth } from './synth'
 import { assets } from './assets'
 import { deploy } from './deploy'
+import { diff } from './diff'
 
 export type CreateStackInput = aws.CloudFormation.Types.CreateStackInput
 export type CreateChangeSetInput = aws.CloudFormation.Types.CreateChangeSetInput
@@ -41,6 +42,8 @@ export async function run(): Promise<void> {
     } else if (config.deploy) {
         await assets(config)
         await deploy(config)
+    } else if (config.diff) {
+        await diff(config)
     }
 }
 
