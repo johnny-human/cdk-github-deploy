@@ -40,7 +40,7 @@ export const synth = async (config: SynthConfiguration) => {
 
     try {
         const result = await runCommand(
-            `${environment} npx cdk synth -o cdk.out ${plugin} ${roleArn} ${strict}`
+            `${environment} npx cdk diff -o cdk.out ${plugin} ${roleArn} ${strict} --no-color`
         )
         core.debug(result)
     } catch (error) {
