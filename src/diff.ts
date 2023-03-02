@@ -36,7 +36,7 @@ export const diff = async (config: DiffConfiguration) => {
     // }
 
     const output = await runCommand(
-        `${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_REGION} ${environment} npx cdk diff`
+        `${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_REGION} ${environment} npx cdk diff --no-color`
     )
 
     const lines = output.split('\n')
