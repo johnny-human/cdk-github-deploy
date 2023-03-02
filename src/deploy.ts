@@ -1,9 +1,15 @@
 import pLimit from 'p-limit'
+import * as path from 'path'
 import * as core from '@actions/core'
 import * as aws from 'aws-sdk'
+import * as fs from 'fs'
 import { deployStack, getStackOutputs } from './deployStack'
 import {
+    isUrl,
+    parseTags,
+    parseString,
     parseNumber,
+    parseARNs,
     parseParameters,
     getTemplateBody
 } from './utils'
