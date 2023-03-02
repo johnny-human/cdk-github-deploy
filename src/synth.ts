@@ -29,6 +29,8 @@ export const synth = async (config: SynthConfiguration) => {
     const AWS_SECRET_ACCESS_KEY = `AWS_SECRET_ACCESS_KEY='${process.env['AWS_SECRET_ACCESS_KEY']}'`
     const AWS_REGION = `AWS_REGION='${process.env['AWS_REGION']}'`
 
+    const stackStatus: any = {}
+
     const environment = config.environment
         ? `ENVIRONMENT=${config.environment}`
         : ''
@@ -47,6 +49,26 @@ export const synth = async (config: SynthConfiguration) => {
             `${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_REGION} ${environment} npx cdk diff -o cdk.out ${plugin} ${roleArn} ${strict} --no-color`
         )
         core.debug(result)
+
+        const lines = result.split('\n')
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+
+            if (line.startsWith('Stack ')) {
+                const name = line.split(' ')[1]
+
+                i += 1 // Skip the next lines
+
+                if (lines[i].includes('There were no differences')) {
+                    stackStatus[name] = false // No changes
+                } else {
+                    stackStatus[name] = true // Changes
+                }
+            }
+        }
+
+        console.log(stackStatus)
     } catch (error) {
         core.error(error as string)
     }
