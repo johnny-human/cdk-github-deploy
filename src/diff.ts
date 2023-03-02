@@ -8,7 +8,7 @@ export type DiffConfiguration = {
      * bin/my-app.js"). Can also be specified in cdk.json or
      * ~/.cdk.json
      */
-    app: string
+    app?: string
     /**
      * Define an environment that the CDK Stacks will use
      * Will set the `ENVIRONMENT` so it will be available in typescript cdk by `process.env.ENVIRONMENT`
@@ -25,7 +25,7 @@ export const diff = async (config: DiffConfiguration) => {
 
         const checkStack= async (name: string): Promise<boolean> => {
             try {
-              await runCommand(`${environment} npx cdk diff ${name} --app "${config.app}" --quiet`);
+              await runCommand(`${environment} npx cdk diff ${name} --quiet`);
               return false; // No changes
             } catch (error: any) {
               if (error.message.includes('The CloudFormation template is invalid')) {
@@ -39,7 +39,7 @@ export const diff = async (config: DiffConfiguration) => {
           }
 
     try {
-        const listResult = await runCommand(`${environment} npx cdk list --app "${config.app}"`)
+        const listResult = await runCommand(`${environment} npx cdk list`)
         stackNames = listResult.trim().split('\n');
         console.log(stackNames);
     } catch (error) {
