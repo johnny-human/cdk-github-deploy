@@ -25,6 +25,10 @@ export type SynthConfiguration = {
 }
 
 export const synth = async (config: SynthConfiguration) => {
+    const AWS_ACCESS_KEY_ID = `AWS_ACCESS_KEY_ID='${process.env['AWS_ACCESS_KEY_ID']}'`
+    const AWS_SECRET_ACCESS_KEY = `AWS_SECRET_ACCESS_KEY='${process.env['AWS_SECRET_ACCESS_KEY']}'`
+    const AWS_REGION = `AWS_REGION='${process.env['AWS_REGION']}'`
+
     const environment = config.environment
         ? `ENVIRONMENT=${config.environment}`
         : ''
@@ -40,7 +44,7 @@ export const synth = async (config: SynthConfiguration) => {
 
     try {
         const result = await runCommand(
-            `${environment} npx cdk diff -o cdk.out ${plugin} ${roleArn} ${strict} --no-color`
+            `${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_REGION} ${environment} npx cdk diff -o cdk.out ${plugin} ${roleArn} ${strict} --no-color`
         )
         core.debug(result)
     } catch (error) {
