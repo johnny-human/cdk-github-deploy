@@ -39,6 +39,7 @@ export async function run(): Promise<void> {
 
     if (config.synth) {
         await synth(config)
+        await diff(config)
     } else if (config.deploy) {
         await assets(config)
         await deploy(config)

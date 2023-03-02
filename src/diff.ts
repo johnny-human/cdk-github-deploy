@@ -17,18 +17,39 @@ export type DiffConfiguration = {
 }
 
 export const diff = async (config: DiffConfiguration) => {
+    let stackNames: string[] = [];
+    const stackStatus: any = {};
     const environment = config.environment
         ? `ENVIRONMENT=${config.environment}`
         : ''
 
-    try {
-        // Run cdk diff and get the list of stacks with changes
-        const result = await runCommand(
-            `${environment} npx cdk diff --app "${config.app}" | grep 'Resources' | awk '{print $2}'`
-        )
+        const checkStack= async (name: string): Promise<boolean> => {
+            try {
+              await runCommand(`${environment} npx cdk diff ${name} --app "${config.app}" --quiet`);
+              return false; // No changes
+            } catch (error: any) {
+              if (error.message.includes('The CloudFormation template is invalid')) {
+                // Ignore errors related to invalid CloudFormation templates
+                return false; // No changes
+              } else {
+                // Assume changes if an error occurs
+                return true; // Changes
+              }
+            }
+          }
 
-        console.log(result)
+    try {
+        const listResult = await runCommand(`${environment} npx cdk list --app "${config.app}"`)
+        stackNames = listResult.trim().split('\n');
+        console.log(stackNames);
     } catch (error) {
         core.error(error as string)
     }
+
+    for (const stackName of stackNames) {
+        const changes = await checkStack(stackName)
+        stackStatus[stackName] = changes;
+    };
+    
+    console.log(stackStatus)
 }
