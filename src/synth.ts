@@ -1,5 +1,6 @@
 import * as core from '@actions/core'
 import { runCommand } from './utils'
+import * as fs from 'fs'
 
 export type SynthConfiguration = {
     /**
@@ -68,7 +69,14 @@ export const synth = async (config: SynthConfiguration) => {
             }
         }
 
-        console.log(stackStatus)
+        console.log(JSON.stringify(stackStatus))
+
+        fs.writeFile('diff.txt', JSON.stringify(stackStatus), (err: any) => {
+            if (err) {
+                return console.error(err)
+            }
+            console.log('Diff created')
+        })
     } catch (error) {
         core.error(error as string)
     }
