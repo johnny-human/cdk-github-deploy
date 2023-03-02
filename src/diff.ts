@@ -1,20 +1,5 @@
 import * as core from '@actions/core'
 import { runCommand } from './utils'
-import { bootstrapCdkToolkit } from './cdk-reverse-engineered'
-import * as cfnDiff from '@aws-cdk/cloudformation-diff'
-
-export type StackRawDiff = {
-    stackName: string
-    rawDiff: cfnDiff.TemplateDiff
-    logicalToPathMap: Record<string, string>
-}
-
-export const getRawDiff = async (): Promise<StackRawDiff[]> => {
-    const cdkToolkit = await bootstrapCdkToolkit()
-    return cdkToolkit.getDiffObject({
-        stackNames: []
-    })
-}
 
 export type DiffConfiguration = {
     /**
@@ -36,21 +21,10 @@ export const diff = async (config: DiffConfiguration) => {
         ? `ENVIRONMENT=${config.environment}`
         : ''
 
-    // const rawDiffs = await getRawDiff()
-    // for (const rawDiff of rawDiffs) {
-    //     if (rawDiff.rawDiff.isEmpty) {
-    //         return {
-    //             stackName: rawDiff.stackName,
-    //             raw: 'There were no differences',
-    //             diff: []
-    //         }
-    //     }
-    // }
-
     try {
         // Run cdk diff and get the list of stacks with changes
         const result = await runCommand(
-            `${environment} npx cdk diff --app "${config.app}" --json > diff.json`
+            `${environment} npx cdk diff --app "${config.app}" | grep 'Resources' | awk '{print $2}'`
         )
 
         console.log(result)

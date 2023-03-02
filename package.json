@@ -32,16 +32,10 @@
   "homepage": "https://github.com/johnny-human/cdk-github-deploy#readme",
   "dependencies": {
     "@actions/core": "1.10.0",
-    "@aws-cdk/cloud-assembly-schema": "^2.66.1",
-    "@aws-cdk/cloudformation-diff": "^2.66.1",
-    "@aws-cdk/cx-api": "^2.66.1",
-    "aws-cdk": "^2.66.1",
-    "aws-cdk-lib": "^2.66.1",
-    "aws-sdk": "^2.1237.0",
-    "cdk-assets": "^2.62.2",
-    "colors": "^1.4.0",
+    "aws-sdk": "2.1237.0",
     "p-limit": "^3.1.0",
-    "short-unique-id": "^4.4.4"
+    "short-unique-id": "^4.4.4",
+    "cdk-assets": "^2.62.2"
   },
   "devDependencies": {
     "@types/jest": "29.2.0",
