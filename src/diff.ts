@@ -17,6 +17,10 @@ export type DiffConfiguration = {
 }
 
 export const diff = async (config: DiffConfiguration) => {
+    const AWS_ACCESS_KEY_ID = `AWS_ACCESS_KEY_ID='${process.env['AWS_ACCESS_KEY_ID']}'`
+    const AWS_SECRET_ACCESS_KEY = `AWS_SECRET_ACCESS_KEY='${process.env['AWS_SECRET_ACCESS_KEY']}'`
+    const AWS_REGION = `AWS_REGION='${process.env['AWS_REGION']}'`
+
     let stackNames: string[] = []
     const stackStatus: any = {}
     const environment = config.environment
@@ -31,31 +35,27 @@ export const diff = async (config: DiffConfiguration) => {
     //     core.error(error as string)
     // }
 
-    try {
-        const output = await runCommand(`${environment} npx cdk diff`)
+    const output = await runCommand(
+        `${AWS_ACCESS_KEY_ID} ${AWS_SECRET_ACCESS_KEY} ${AWS_REGION} ${environment} npx cdk diff`
+    )
 
-        console.log(output)
+    const lines = output.split('\n')
 
-        const lines = output.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i]
 
-        for (let i = 0; i < lines.length; i++) {
-            const line = lines[i]
+        if (line.startsWith('Stack ')) {
+            const name = line.split(' ')[1]
 
-            if (line.startsWith('Stack ')) {
-                const name = line.split(' ')[1]
+            i += 1 // Skip the next lines
 
-                i += 1 // Skip the next lines
-
-                if (lines[i].includes('There were no differences')) {
-                    stackStatus[name] = false // No changes
-                } else {
-                    stackStatus[name] = true // Changes
-                }
+            if (lines[i].includes('There were no differences')) {
+                stackStatus[name] = false // No changes
+            } else {
+                stackStatus[name] = true // Changes
             }
         }
-
-        console.log(stackStatus)
-    } catch (error) {
-        core.error(error as string)
     }
+
+    console.log(stackStatus)
 }
