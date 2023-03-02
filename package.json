@@ -39,6 +39,7 @@
     "aws-cdk-lib": "^2.66.1",
     "aws-sdk": "^2.1237.0",
     "cdk-assets": "^2.62.2",
+    "chokidar": "^3.5.3",
     "colors": "^1.4.0",
     "p-limit": "^3.1.0",
     "short-unique-id": "^4.4.4"
