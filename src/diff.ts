@@ -17,39 +17,43 @@ export type DiffConfiguration = {
 }
 
 export const diff = async (config: DiffConfiguration) => {
-    let stackNames: string[] = [];
-    const stackStatus: any = {};
+    let stackNames: string[] = []
+    const stackStatus: any = {}
     const environment = config.environment
         ? `ENVIRONMENT=${config.environment}`
         : ''
 
-        const checkStack= async (name: string): Promise<boolean> => {
-            try {
-              await runCommand(`${environment} npx cdk diff ${name} --quiet`);
-              return false; // No changes
-            } catch (error: any) {
-              if (error.message.includes('The CloudFormation template is invalid')) {
-                // Ignore errors related to invalid CloudFormation templates
-                return false; // No changes
-              } else {
-                // Assume changes if an error occurs
-                return true; // Changes
-              }
-            }
-          }
-
     try {
         const listResult = await runCommand(`${environment} npx cdk list`)
-        stackNames = listResult.trim().split('\n');
-        console.log(stackNames);
+        stackNames = listResult.trim().split('\n')
+        console.log(stackNames)
     } catch (error) {
         core.error(error as string)
     }
 
-    for (const stackName of stackNames) {
-        const changes = await checkStack(stackName)
-        stackStatus[stackName] = changes;
-    };
-    
-    console.log(stackStatus)
+    try {
+        const output = await runCommand(`${environment} npx cdk diff`)
+
+        const lines = output.split('\n')
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i]
+
+            if (line.startsWith('Stack ')) {
+                const name = line.split(' ')[1]
+
+                i += 1 // Skip the next lines
+
+                if (lines[i].includes('There were no differences')) {
+                    stackStatus[name] = false // No changes
+                } else {
+                    stackStatus[name] = true // Changes
+                }
+            }
+        }
+
+        console.log(stackStatus)
+    } catch (error) {
+        core.error(error as string)
+    }
 }
