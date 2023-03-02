@@ -23,16 +23,18 @@ export const diff = async (config: DiffConfiguration) => {
         ? `ENVIRONMENT=${config.environment}`
         : ''
 
-    try {
-        const listResult = await runCommand(`${environment} npx cdk list`)
-        stackNames = listResult.trim().split('\n')
-        console.log(stackNames)
-    } catch (error) {
-        core.error(error as string)
-    }
+    // try {
+    //     const listResult = await runCommand(`${environment} npx cdk list`)
+    //     stackNames = listResult.trim().split('\n')
+    //     console.log(stackNames)
+    // } catch (error) {
+    //     core.error(error as string)
+    // }
 
     try {
         const output = await runCommand(`${environment} npx cdk diff`)
+
+        console.log(output)
 
         const lines = output.split('\n')
 
